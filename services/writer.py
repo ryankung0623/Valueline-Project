@@ -11,7 +11,6 @@ import pickle
 
 import os
 
-#
 
 def df2table(doc,df: pd.DataFrame,fontsize = 7.5):
     rows, cols = df.shape
