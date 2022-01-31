@@ -4,10 +4,10 @@ import pandas as pd
 import os
 
 
-config['TICKERS_CSV_PATH']
 
 
-tickers = pd.read_csv("/Users/ryankung/Desktop/Valueline Project/NASDAQ_Tickers.csv")
+
+tickers = pd.read_csv(config['TICKERS_CSV_PATH'])
 tickers = list(tickers.iloc[:,0])
 
 
