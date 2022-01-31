@@ -11,9 +11,9 @@ import pickle
 
 import os
 
+#
 
-
-def df2table(doc,df,fontsize = 7.5):
+def df2table(doc,df: pd.DataFrame,fontsize = 7.5):
     rows, cols = df.shape
     table = doc.add_table(rows = rows, cols = cols, style = "Table Grid")
     table.autofit = False
