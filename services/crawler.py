@@ -145,21 +145,20 @@ class Crawler:
                         data["Sector"] = profile[profile.index("Sector") + 1]
                         data["Industry"] = profile[profile.index("Industry") + 1]
 
-                        self.data = data
-                        return 'success'
+                        return data, 'success'
 
 
                 except Exception as e:
-                        return e
+                        return e, 'error'
 
         def quit(self):
                 self.driver.quit()
 
-        def write(self, file_path):
+        def write(self, data, file_path):
                 with open(file_path,"wb") as file:
-                        pickle.dump(self.data, file)
+                        pickle.dump(data, file)
                         
 
         def read(self, file_path):
                 with open(file_path,"rb") as file:
-                        self.data = pickle.load(file)
+                        return pickle.load(file)
