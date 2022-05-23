@@ -26,14 +26,14 @@ workers = NUMBER_OF_THREADS
 crawlers_list = [Crawler() for _ in range(workers)]
 crawlers = cycle(crawlers_list)
 
-for index, ticker in enumerate(tqdm(tickers)):
+for ticker in tqdm(tickers):
     while True:
         current_crawler = next(crawlers)
         if current_crawler.is_available():
             t = threading.Thread(target=current_crawler.download, args=(ticker, EXCHANGE_CODE, RAW_DATA_DIR))
             t.start()
             thread_list.append(t)
-            time.sleep(0.05)
+            time.sleep(0.01)
             break
 
 # wait until all threads are done
