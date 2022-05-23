@@ -15,12 +15,13 @@ pd.options.mode.chained_assignment = None
 RAW_DATA_DIR = config['RAW_DATA_PATH']
 EXCHANGE_CODE = config['EXCHANGE_CODE']
 OUTPUT_PATH = config['OUTPUT_PATH']
+NUMBER_OF_THREADS = int(config['NUMBER_OF_THREADS'])
 
 tickers = pd.read_csv(config['TICKERS_CSV_PATH'], dtype = str)
 tickers = list(tickers.iloc[:,0])
 
 thread_list = []
-workers = 5
+workers = NUMBER_OF_THREADS
 # cycle cannot be turned into list, need to create a separate reference for quiting Crawlers later
 crawlers_list = [Crawler() for _ in range(workers)]
 crawlers = cycle(crawlers_list)
@@ -29,7 +30,7 @@ for index, ticker in enumerate(tqdm(tickers)):
     while True:
         current_crawler = next(crawlers)
         if current_crawler.is_available():
-            t = threading.Thread(target = current_crawler.download, args=(ticker, EXCHANGE_CODE, RAW_DATA_DIR))
+            t = threading.Thread(target=current_crawler.download, args=(ticker, EXCHANGE_CODE, RAW_DATA_DIR))
             t.start()
             thread_list.append(t)
             time.sleep(0.05)
@@ -54,7 +55,7 @@ except Exception as e:
     print(e)
 tickers.sort()
 
-#get all sectors
+# get all sector names and append tickers to the right sector
 sectors = dict()
 for ticker in tickers:
     data = load_pickle(RAW_DATA_DIR + ticker)
