@@ -8,6 +8,7 @@ import time
 from services.writer import *
 from itertools import cycle
 
+# turn off pandas warning
 pd.options.mode.chained_assignment = None
 
 # loading env variables
