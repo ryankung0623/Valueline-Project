@@ -12,7 +12,7 @@ import pickle
 import os
 
 
-def df2table(doc,df: pd.DataFrame,fontsize = 7.5):
+def df2table(doc, df: pd.DataFrame, fontsize = 7.5):
     rows, cols = df.shape
     table = doc.add_table(rows = rows, cols = cols, style = "Table Grid")
     table.autofit = False
@@ -48,8 +48,9 @@ def df2table(doc,df: pd.DataFrame,fontsize = 7.5):
 
 
 def add_header(df):
-    df.loc[-1] = list(df.columns)
-    df.index = df.index + 1
+    # df.loc[-1] = list(df.columns)
+    # df.index = df.index + 1
+    df.loc[0] = list(df.columns)
     df = df.sort_index()
     return df
 

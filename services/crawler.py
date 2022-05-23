@@ -16,6 +16,8 @@ import time
 
 class Crawler:
         def __init__(self):
+                self.available = True
+
                 ##driver config
                 PATH = "/Applications/chromedriver"
                 chrome_options = Options()  
@@ -32,7 +34,11 @@ class Crawler:
                 ##driver.set_window_position(0, 0)
                 ##driver.set_window_size(1400, 1024)
 
+        def is_available(self):
+                return self.available
+
         def download(self, ticker, exchange_code, raw_data_dir) -> str:
+                self.available = False
                 '''use get request to obtain financial data corresponding to the ticker and exchange
                 return success or error message
 
@@ -50,6 +56,7 @@ class Crawler:
                 # if ticker file already exist in raw-data directory, don't fetch data for second time
                 if ticker in raw_data:
                         print(ticker + " done...")
+                        self.available = True
                         return
 
                 else:
@@ -59,6 +66,8 @@ class Crawler:
                                 print(ticker + " done...")
                         else:
                                 print(result)
+
+                        self.available = True
                         return
 
         def get(self, ticker="", exchange="") -> str:
