@@ -18,8 +18,11 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true
+            "env": {"DISPLAY":":1",
+                    "PYTHONPATH": "${workspaceRoot}",
+                    "PYDEVD_WARN_EVALUATION_TIMEOUT": "500"},
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
         }
     ]
 }

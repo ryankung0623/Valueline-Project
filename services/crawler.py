@@ -32,12 +32,42 @@ class Crawler:
                 ##driver.set_window_position(0, 0)
                 ##driver.set_window_size(1400, 1024)
 
+        def download(self, ticker, exchange_code, raw_data_dir) -> str:
+                '''use get request to obtain financial data corresponding to the ticker and exchange
+                return success or error message
 
+                after fetching the data, write data to raw_data_dir
+                
+                return data/error, message
+                '''
+                try:
+                        raw_data = os.listdir(raw_data_dir)
+                except FileNotFoundError:
+                        os.mkdir(raw_data_dir)
+                        raw_data = os.listdir(raw_data_dir)
+
+                
+                # if ticker file already exist in raw-data directory, don't fetch data for second time
+                if ticker in raw_data:
+                        print(ticker + " done...")
+                        return
+
+                else:
+                        result, msg = self.get(ticker, exchange_code)
+                        if msg == 'success':
+                                self.write(result, f'{raw_data_dir}/{ticker}')
+                                print(ticker + " done...")
+                        else:
+                                print(result)
+                        return
 
         def get(self, ticker="", exchange="") -> str:
                 '''use get request to obtain financial data corresponding to the ticker and exchange
                 return success or error message
-                the actual data will be stored in the object's attribute, data '''
+                the actual data will be stored in the object's attribute, data 
+                
+                return data/error, message
+                '''
 
                 code = ticker
                 if exchange != "":
@@ -155,10 +185,14 @@ class Crawler:
                 self.driver.quit()
 
         def write(self, data, file_path):
+                """pickle data to file_path"""
                 with open(file_path,"wb") as file:
                         pickle.dump(data, file)
                         
 
         def read(self, file_path):
+                """read and return pickled data from file_path to dictionary"""
                 with open(file_path,"rb") as file:
                         return pickle.load(file)
+
+        

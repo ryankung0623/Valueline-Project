@@ -1,5 +1,9 @@
-#CSV files
+# Others
 *.csv
+raw-data/
+.DS_Store
+launch.json
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
