@@ -1,6 +1,7 @@
 # Others
 *.csv
 raw-data/
+output/
 .DS_Store
 launch.json
 
