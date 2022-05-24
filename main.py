@@ -1,4 +1,5 @@
 from helper.config import config
+from helper.picky_numbers import picky_mean, convert_to_float
 
 from services.crawler import Crawler
 import services.writer as writer
@@ -88,12 +89,21 @@ for sector in sectors.keys():
             document.add_heading(ticker, 0)
             p = document.add_paragraph()
 
+            # Indirect method of calculating PE ratio
+            profitability_ratio_table = data['profitability ratio'].set_index('')
+            last_3y_margins = list(profitability_ratio_table.loc['Net Margin %'])[-3:]
+            average_margin = picky_mean(last_3y_margins)
+            average_margin_decimal = average_margin/100
+            ps = convert_to_float(data['Price/Sales'])
+            pe = ps/average_margin_decimal
+            data['P/E'] = pe
+
             # composing quick summary
-            quick_info = ['Market Cap', 'Sector', 'Industry' , 'Beta', 'Price/Sales', 'Consensus Forward P/E', 'Price/Book']
+            quick_info = ['Market Cap', 'Sector', 'Industry' , 'Beta', 'P/E', 'Consensus Forward P/E', 'Price/Sales', 'Price/Book']
             for info in quick_info:
                 if info not in data.keys():
                     continue
-                s = p.add_run("%s  -  %s\t\t"%(info,data[info]))
+                s = p.add_run("%s  -  %s\t\t"%(info, data[info]))
                 s.font.name = 'Arial'
                 s.font.size = writer.t(8)
 
