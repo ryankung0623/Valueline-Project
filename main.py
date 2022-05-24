@@ -23,32 +23,31 @@ NUMBER_OF_THREADS = int(config['NUMBER_OF_THREADS'])
 
 tickers = pd.read_csv(config['TICKERS_CSV_PATH'], dtype = str)
 tickers = list(tickers.iloc[:,0])
-tickers = []
 
-thread_list = []
-workers = NUMBER_OF_THREADS
-# cycle cannot be turned into list, need to create a separate reference for quiting Crawlers later
-crawlers_list = [Crawler() for _ in range(workers)]
-crawlers = cycle(crawlers_list)
+# thread_list = []
+# workers = NUMBER_OF_THREADS
+# # cycle cannot be turned into list, need to create a separate reference for quiting Crawlers later
+# crawlers_list = [Crawler() for _ in range(workers)]
+# crawlers = cycle(crawlers_list)
 
-for ticker in tqdm(tickers):
-    while True:
-        current_crawler = next(crawlers)
-        if current_crawler.is_available():
-            t = threading.Thread(target=current_crawler.download, args=(ticker, EXCHANGE_CODE, RAW_DATA_DIR))
-            t.start()
-            thread_list.append(t)
-            time.sleep(0.01)
-            break
+# for ticker in tqdm(tickers):
+#     while True:
+#         current_crawler = next(crawlers)
+#         if current_crawler.is_available():
+            # t = threading.Thread(target=current_crawler.download, args=(ticker, EXCHANGE_CODE, RAW_DATA_DIR), daemon=True)
+#             t.start()
+#             thread_list.append(t)
+#             time.sleep(0.01)
+#             break
 
-# wait until all threads are done
-for thread in thread_list:
-    thread.join()
+# # wait until all threads are done
+# for thread in thread_list:
+#     thread.join()
 
-for crawler in crawlers_list:
-    crawler.quit()
+# for crawler in crawlers_list:
+#     crawler.quit()
 
-print('Finished downloading raw data...')
+# print('Finished downloading raw data...')
 
 
 ## Compiling downloaded raw data into tearsheets
@@ -94,9 +93,9 @@ for sector in sectors.keys():
             last_3y_margins = list(profitability_ratio_table.loc['Net Margin %'])[-3:]
             average_margin = picky_mean(last_3y_margins)
             average_margin_decimal = average_margin/100
-            ps = convert_to_float(data['Price/Sales'])
-            pe = ps/average_margin_decimal
-            data['P/E'] = pe
+            PS = convert_to_float(data['Price/Sales'])
+            PE = PS/average_margin_decimal
+            data['P/E'] = round(PE,2)
 
             # composing quick summary
             quick_info = ['Market Cap', 'Sector', 'Industry' , 'Beta', 'P/E', 'Consensus Forward P/E', 'Price/Sales', 'Price/Book']
@@ -105,7 +104,7 @@ for sector in sectors.keys():
                     continue
                 s = p.add_run("%s  -  %s\t\t"%(info, data[info]))
                 s.font.name = 'Arial'
-                s.font.size = writer.t(8)
+                s.font.size = writer.Pt(8)
 
             # empty lines between quick summary and detail information
             s = p.add_run("\n\n")
@@ -139,5 +138,5 @@ for sector in sectors.keys():
         document.save(f'{OUTPUT_PATH}{sector}.docx')
         
 #convert all docs to pdfs
-writer.to_pdf(OUTPUT_PATH)
+# writer.to_pdf(OUTPUT_PATH)
 
