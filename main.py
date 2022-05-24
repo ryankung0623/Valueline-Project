@@ -34,7 +34,7 @@ tickers = list(tickers.iloc[:,0])
 #     while True:
 #         current_crawler = next(crawlers)
 #         if current_crawler.is_available():
-            # t = threading.Thread(target=current_crawler.download, args=(ticker, EXCHANGE_CODE, RAW_DATA_DIR), daemon=True)
+#             t = threading.Thread(target=current_crawler.download, args=(ticker, EXCHANGE_CODE, RAW_DATA_DIR), daemon=True)
 #             t.start()
 #             thread_list.append(t)
 #             time.sleep(0.01)
@@ -98,11 +98,12 @@ for sector in sectors.keys():
             data['P/E'] = round(PE,2)
 
             # composing quick summary
-            quick_info = ['Market Cap', 'Sector', 'Industry' , 'Beta', 'P/E', 'Consensus Forward P/E', 'Price/Sales', 'Price/Book']
+            quick_info = ['Market Cap', 'Sector', 'Industry' , 'P/E', 'Price/Sales', 'Price/Book']
             for info in quick_info:
                 if info not in data.keys():
                     continue
-                s = p.add_run("%s  -  %s\t\t"%(info, data[info]))
+
+                s = p.add_run(f"{info}: {data[info]}        ")
                 s.font.name = 'Arial'
                 s.font.size = writer.Pt(8)
 
