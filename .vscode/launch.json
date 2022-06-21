@@ -6,7 +6,7 @@
     "configurations": [
 
         {
-            "name": "Main",
+            "name": "main.py",
             "type": "python",
             "request": "launch",
             "program": "main.py",

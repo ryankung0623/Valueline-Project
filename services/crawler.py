@@ -82,9 +82,10 @@ class Crawler:
                 # dictionary of data
                 data = {}
 
-
-                self.driver.get("https://financials.morningstar.com/ratios/r.html?t=%s"%(code))
-
+                try:
+                        self.driver.get("https://financials.morningstar.com/ratios/r.html?t=%s"%(code))
+                except Exception as e:
+                        print(e)
 
                 ##get to financial
 
