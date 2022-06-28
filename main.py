@@ -82,22 +82,11 @@ if MODE in [1,2]:
 
     for sector in list(sectors.keys())[:1]:
         print(f'Compiling {sector} sector tear sheets...')
-        #open a doc
-        document = writer.Document()
-        # trim the margins down to 1cm on each side
-        sections = document.sections
-        for section in sections:
-            section.top_margin = writer.Cm(1)
-            section.bottom_margin = writer.Cm(1)
-            section.left_margin = writer.Cm(1)
-            section.right_margin = writer.Cm(1)
 
         #compose tear sheets sector by sector
         for ticker in tqdm(sectors[sector][:4]):
             try:
                 data = writer.load_pickle(RAW_DATA_DIR + ticker)
-                document.add_heading(ticker, 0)
-                p = document.add_paragraph()
                 
                 html_body += f"<h1>{ticker}</h1>\t"
                 
@@ -118,33 +107,13 @@ if MODE in [1,2]:
                     if info not in data.keys():
                         continue
 
-                    s = p.add_run(f"{info}: {data[info]}        ")
-                    s.font.name = 'Arial'
-                    s.font.size = writer.Pt(8)
-                    html_body += f"{info}: {data[info]} \t"
+                    html_body += f"{info}: {data[info]}        "
 
                 html_body += "</p>"
-
-                html_body += "\n\n"
-
                 # empty lines between quick summary and detail information
-                s = p.add_run("\n\n")
+                html_body = "<p>" + html_body + data['company description'] + "</p>"
 
-                s = p.add_run(data['company description'])
-                s.font.name = 'Arial'
-                s.font.size = writer.Pt(8)
-                html_body = html_body + data['company description'] + "\n\n"
-
-                part1 = pd.concat([writer.add_header(data['quick financials']),data['profitability ratio']])
-                writer.df2table(document, part1)
-
-                p = document.add_paragraph()
-
-                #part2 = pd.concat([writer.add_header(data['balance sheet']),data['liquidity']])
-                writer.df2table(document, writer.add_header(data['balance sheet']))
-                writer.df2table(document, writer.add_header(data['liquidity']))
-
-                writer.df2table(document, writer.add_header(writer.df_filter(data['efficiency'],['Days Sales Outstanding','Days Inventory','Payables Period','Cash Conversion Cycle'])))
+                part1 = pd.concat([writer.add_header(data['quick financials']), data['profitability ratio']])
 
                 html_body = html_body + pd.concat([data['quick financials'],data['profitability ratio']]).to_html(index=False).replace("\n", "")
                 html_body += "<p></p>"
@@ -157,8 +126,6 @@ if MODE in [1,2]:
 
             except Exception as e:
                 print(e)
-
-            document.add_page_break()
 
             html_body += "<hr>"
             html_body += "<p></p>"
