@@ -16,6 +16,8 @@ from itertools import cycle
 # turn off pandas warning
 pd.options.mode.chained_assignment = None
 
+html_body = ""
+
 # loading env variables
 MODE = int(config['MODE'])
 RAW_DATA_DIR = config['RAW_DATA_PATH']
@@ -78,7 +80,7 @@ if MODE in [1,2]:
         else:
             sectors[data["Sector"]].append(ticker)
 
-    for sector in sectors.keys():
+    for sector in list(sectors.keys())[:1]:
         print(f'Compiling {sector} sector tear sheets...')
         #open a doc
         document = writer.Document()
@@ -91,12 +93,14 @@ if MODE in [1,2]:
             section.right_margin = writer.Cm(1)
 
         #compose tear sheets sector by sector
-        for ticker in tqdm(sectors[sector]):
+        for ticker in tqdm(sectors[sector][:4]):
             try:
                 data = writer.load_pickle(RAW_DATA_DIR + ticker)
                 document.add_heading(ticker, 0)
                 p = document.add_paragraph()
-
+                
+                html_body += f"<h1>{ticker}</h1>\t"
+                
                 # Indirect method of calculating PE ratio
                 profitability_ratio_table = data['profitability ratio'].set_index('')
                 last_3y_margins = list(profitability_ratio_table.loc['Net Margin %'])[-3:]
@@ -105,6 +109,8 @@ if MODE in [1,2]:
                 PS = convert_to_float(data['Price/Sales'])
                 PE = PS/average_margin_decimal
                 data['P/E'] = round(PE,2)
+
+                html_body += "<p>"
 
                 # composing quick summary
                 quick_info = ['Market Cap', 'Sector', 'Industry' , 'P/E', 'Price/Sales', 'Price/Book']
@@ -115,6 +121,11 @@ if MODE in [1,2]:
                     s = p.add_run(f"{info}: {data[info]}        ")
                     s.font.name = 'Arial'
                     s.font.size = writer.Pt(8)
+                    html_body += f"{info}: {data[info]} \t"
+
+                html_body += "</p>"
+
+                html_body += "\n\n"
 
                 # empty lines between quick summary and detail information
                 s = p.add_run("\n\n")
@@ -122,6 +133,7 @@ if MODE in [1,2]:
                 s = p.add_run(data['company description'])
                 s.font.name = 'Arial'
                 s.font.size = writer.Pt(8)
+                html_body = html_body + data['company description'] + "\n\n"
 
                 part1 = pd.concat([writer.add_header(data['quick financials']),data['profitability ratio']])
                 writer.df2table(document, part1)
@@ -134,18 +146,39 @@ if MODE in [1,2]:
 
                 writer.df2table(document, writer.add_header(writer.df_filter(data['efficiency'],['Days Sales Outstanding','Days Inventory','Payables Period','Cash Conversion Cycle'])))
 
+                html_body = html_body + pd.concat([data['quick financials'],data['profitability ratio']]).to_html(index=False).replace("\n", "")
+                html_body += "<p></p>"
+                html_body = html_body + data['balance sheet'].to_html(index=False).replace("\n", "")
+                html_body += "<p></p>"
+                html_body = html_body + data['liquidity'].to_html(index=False).replace("\n", "")
+                html_body += "<p></p>"
+                html_body = html_body + writer.df_filter(data['efficiency'],['Days Sales Outstanding','Days Inventory','Payables Period','Cash Conversion Cycle']).to_html(index=False).replace("\n", "")
+                html_body += "<p></p>"
+
             except Exception as e:
                 print(e)
 
             document.add_page_break()
 
-        try:
-            document.save(f'{OUTPUT_PATH}{sector}.docx')
-        except FileNotFoundError:
-            with open(f'{OUTPUT_PATH}{sector}.docx', 'w') as f:
-                # just create a file if not found and don't do anything to it
-                pass
-            document.save(f'{OUTPUT_PATH}{sector}.docx')
+            html_body += "<hr>"
+            html_body += "<p></p>"
+
+        
+        with open('test.html', 'w') as f:
+            f.write(f"""<!DOCTYPE html>
+            <html>
+            <body>
+            {html_body}
+            </body>
+            </html>
+            """)
+        # try:
+        #     document.save(f'{OUTPUT_PATH}{sector}.docx')
+        # except FileNotFoundError:
+        #     with open(f'{OUTPUT_PATH}{sector}.docx', 'w') as f:
+        #         # just create a file if not found and don't do anything to it
+        #         pass
+        #     document.save(f'{OUTPUT_PATH}{sector}.docx')
             
     #convert all docs to pdfs
     # writer.to_pdf(OUTPUT_PATH)

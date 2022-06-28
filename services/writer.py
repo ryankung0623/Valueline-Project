@@ -45,7 +45,7 @@ def df2table(doc, df: pd.DataFrame, fontsize = 7.5):
 
 
 
-def add_header(df):
+def add_header(df) -> pd.DataFrame:
     # df.loc[-1] = list(df.columns)
     # df.index = df.index + 1
     df.loc[0] = list(df.columns)
@@ -59,5 +59,5 @@ def load_pickle(filepath):
     with open(filepath, "rb") as file:
         return pickle.load(file)
     
-def df_filter(df, items):
+def df_filter(df, items) -> pd.DataFrame:
     return df[[True if item in items else False for item in list(df.iloc[:,0])]]
